@@ -5,12 +5,6 @@ import routes from "../../router"
 const content = () => {
   return (
     <Switch>
-      {/* <Route
-        path={"/"}
-        render={() => (
-          <Home />
-        )}
-      /> */}
       {routes.map((route, i) => (
         <RouteWithSubRoutes key={i} {...route} />
       ))}

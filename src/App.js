@@ -11,6 +11,7 @@ const Div = styled.div`
   flex-direction: column;
   flex: 1;
   height: 100vh;
+  background: #ebf0f6;
 `
 
 function App() {
