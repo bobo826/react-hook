@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useState, useCallback} from "react"
 import Shaixuan from "./components/shaixuan/index"
 import styled from "styled-components"
 // 样式navbox
@@ -23,8 +23,35 @@ const Span = styled.span`
   color: #1890ff;
   cursor: pointer;
 `
+
+function useInputValue(initialValue) {
+  let [value, setValue] = useState(initialValue)
+  let onChange = useCallback(function(event) {
+    setValue(event.currentTarget.value)
+  }, [])
+  return {
+    value,
+    onChange
+  }
+}
+
+function Comments(params) {
+  console.log('render?')
+  return <h1>no</h1>
+}
+
+function Page({ children }) {
+  if (true) return <h1>Please login</h1>
+  return (
+    <div>
+      {children}
+    </div>
+  )
+}
+
 function Home() {
   const [open, setOpen] = useState(true)
+  const name = useInputValue("Jamie")
   return (
     <Div>
       <Head>
@@ -33,6 +60,11 @@ function Home() {
       {
         open ? <Shaixuan /> : null
       }
+      <input {...name} />
+      {name.value}
+      <Page>
+        <Comments />
+      </Page>
     </Div>
   )
 }
