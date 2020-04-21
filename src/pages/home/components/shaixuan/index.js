@@ -4,7 +4,6 @@ import styled from "styled-components"
 const Div = styled.div`
   margin: 16px;
 `
-
 const Ul = styled.ul`
   list-style: none;
   padding: 0;
@@ -38,13 +37,7 @@ const Opt = styled.span`
   border-radius: 4px;
 `
 
-function useCount(num) {
-  const [count, setCount] = useState(num)
-  return [count, setCount]
-}
-
 function Shaixuan() {
-  const [count, setCount] = useCount(0) // 自定义hook
   const [resdata, setResdata] = useState([]) // 存放获取到的筛选条件数据
   const [postdata, setPostdata] = useState({}) // 存放请求参数
   useEffect(
@@ -96,7 +89,7 @@ function Shaixuan() {
           }
           return cell
         })
-        delActiveValue(currentcell, item)
+        dealActiveValue(currentcell, item)
       }
       return item
     })
@@ -104,7 +97,7 @@ function Shaixuan() {
     setPostdata(postdata)
   }
   // 处理选中的数据存放在postdata中
-  function delActiveValue(cell, item) {
+  function dealActiveValue(cell, item) {
     if (item.multiple) {　// 多选数据处理
       let allactive = []
       if (cell.value !== '不限') {
@@ -150,7 +143,6 @@ function Shaixuan() {
           ))
         }
       </Ul>
-      <span onClick={() => setCount(count + 1)}>{count}</span>
       <div>{JSON.stringify(postdata)}</div>
     </Div>
   )
