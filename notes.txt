@@ -1,0 +1,124 @@
+const [count, setCount] = useState(0)
+useState第一次执行时将创建一个状态，之后执行都是使用这个状态
+
+
+react-ui渲染原理
+
+// JSX是下面对象的一个语法糖.
+// <button className="blue" /> // 主机实例
+{
+  type: 'button',
+  props: { className: 'blue' }
+}
+
+
+如果树中同一位置的元素类型在前一个和下一个渲染之间“匹配”，那么react将重用现有主机实例。
+
+
+React元素是不可变的。例如，你无法更改子项或React元素的属性。
+
+如果你想之后渲染不同的东西，你将使用从头创建的新React元素树来描述它。
+我喜欢将React元素视为电影中的帧。它们捕获UI在特定时间点应该是什么样子。他们不会改变。
+
+#Lazy Evaluation-------------------start-------------------------
+当我们在javascript中调用函数时，参数会在调用之前进行计算：
+
+// (2) This gets computed second
+eat(
+  // (1) This gets computed first
+  prepareMeal()
+);
+这通常是JavaScript开发人员所期望的，因为JavaScript函数可能具有隐含的副作用。如果我们调用一个函数，这将是令人惊讶的，但它不会执行，直到它的结果在JavaScript中以某种方式“使用”时才会执行。
+
+但是React组件相对纯净。如果我们知道它的结果不会在屏幕上呈现，则完全没有必要执行它。
+
+考虑将<comments>放入<page>中：
+
+function Story({ currentUser }) {
+  // return {
+  //   type: Page,
+  //   props: {
+  //     user: currentUser,
+  //     children: { type: Comments, props: {} }
+  //   }
+  // }
+  return (
+    <Page user={currentUser}>
+      <Comments />    
+     </Page>
+  );
+}
+Page组件可以在一些Layout中呈现给它的子元素：
+
+function Page({ currentUser, children }) {
+  return (
+    <Layout>
+      {children}    
+     </Layout>
+  );
+}
+<A><B /></A> 在JSX中，类似于这样*<A children={<B />} />*
+
+但如果它有提前退出条件怎么办？
+
+function Page({ currentUser, children }) {
++  if (!currentUser.isLoggedIn) {    
++  	 return <h1>Please login</h1>;  
++  }  
+  return (
+    <Layout>
+      {children}
+    </Layout>
+  );
+}
+如果我们将Comments()作为函数调用，它将立即执行，无论Page是否要呈现它们：
+
+// {
+//   type: Page,
+//   props: {
+//     children: Comments() // Always runs!   
+//	 }
+// }
+<Page>
+  {Comments()}
+</Page>
+但是，如果我们传递一个react元素，我们就根本不执行Comments：
+
+// {
+//   type: Page,
+//   props: {
+//     children: { type: Comments }
+//   }
+// }
+<Page>
+  <Comments />
+</Page>
+这让React决定何时以及是否调用它。如果我们的Page组件忽略了它的childrenprop并呈现<h1>Please login</h1>，React甚至不会去尝试调用Comments函数。重点是什么？
+
+这很好，因为它既可以让我们避免不必要的渲染工作，也可以使代码不那么脆弱。当用户注销时，我们不关心是否抛出Comments - 它不会被调用。
+#Lazy Evaluation---------------------end-----------------------
+
+
+
+
+
+#同useEffect一样，useCallback的第二个参数是用于比较memo的上下文中对应值是否变化，
+如果有变化则会重新声明回调函数。
+如果这个参数为空数组，则只会在component挂载时运行。
+如果不存在这个参数，则会在每次渲染时运行。
+
+
+
+
+
+笔者个人总结
+
+其实这个就像前面所说的类和函数的区别了。
+因为在React中，props是不会改变的，而this(state)是可变的。
+所以造成了改变。
+由于props是不可变的，这样针对每次的渲染，都会有一个特定的渲染(每次的渲染)。
+
+
+对于effect内使用的函数，最好是放在effect中，这样可以避免以后组件增加而未处理所有的情况。
+如果有复用，可以把这些函数提到effect外面，使用useCallback包裹起来。也可以放在组件最外层（但这种最好不要避免混乱）
+

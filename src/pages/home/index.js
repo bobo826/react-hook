@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from "react"
+import React, {useState, useEffect, useReducer} from "react"
 import Shaixuan from "./components/shaixuan/index"
 import styled from "styled-components"
 // 样式navbox
@@ -24,17 +24,6 @@ const Span = styled.span`
   cursor: pointer;
 `
 
-function useInputValue(initialValue) {
-  let [value, setValue] = useState(initialValue)
-  let onChange = useCallback(function(event) {
-    setValue(event.currentTarget.value)
-  }, [])
-  return {
-    value,
-    onChange
-  }
-}
-
 function Comments(params) {
   console.log('render?')
   return <h1>no</h1>
@@ -49,9 +38,49 @@ function Page({ children }) {
   )
 }
 
+const initialState = {
+  count: 0,
+  step: 1
+}
+
+function reducer (state, action) {
+  const { count, step } = state
+  if (action.type === 'tick') {
+    return { count: count + step, step }
+  } else if (action.type === 'step') {
+    return { count, step: action.step }
+  } else {
+    throw new Error()
+  }
+}
+
+function Counter () {
+
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { count, step } = state
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      dispatch({ type: 'tick' })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <>
+      <h1>{count}</h1>
+      <input value={step} onChange={e => {
+        dispatch({
+          type: 'step',
+          step: Number(e.target.value)
+        })
+      }} />
+    </>
+  )
+}
+
 function Home() {
   const [open, setOpen] = useState(true)
-  const name = useInputValue("Jamie")
   return (
     <Div>
       <Head>
@@ -60,11 +89,10 @@ function Home() {
       {
         open ? <Shaixuan /> : null
       }
-      <input {...name} />
-      {name.value}
       <Page>
         <Comments />
       </Page>
+      <Counter />
     </Div>
   )
 }
